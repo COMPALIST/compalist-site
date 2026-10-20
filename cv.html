@@ -146,6 +146,10 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
 .chip.miss{background:color-mix(in srgb, var(--gap) 10%, var(--bg));border-color:color-mix(in srgb, var(--gap) 40%, transparent)}
 .lbl{font:600 12px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .foot-note{font-size:13px;color:var(--muted)}
+.ai{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:12px}
+.ai .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ai ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14.5px}
+.ai .err{color:var(--gap);font-size:14px}
 .cta{background:var(--ink);color:var(--bg);border-radius:16px;padding:20px;display:grid;gap:10px}
 .cta p{opacity:.8;font-size:14.5px}
 .cta a{color:var(--bg);font-weight:600}
@@ -183,7 +187,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
     </div>
     <div class="priv">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
-      <span data-i18n="priv">Üyelik yok. Bilgilerin yalnızca bu tarayıcıda saklanır, sunucuya gönderilmez.</span>
+      <span data-i18n="priv">Üyelik yok. Bilgilerin bu tarayıcıda saklanır; yalnızca yapay zekâ eşleşmesini istediğinde analiz için gönderilir ve saklanmaz.</span>
     </div>
   </section>
 
@@ -262,13 +266,27 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
           <div style="display:grid;gap:8px"><span class="lbl" data-i18n="job.miss">CV'nde geçmeyenler</span><div class="chips" id="miss"></div></div>
           <div style="display:grid;gap:8px"><span class="lbl" data-i18n="job.hit">Eşleşenler</span><div class="chips" id="hit"></div></div>
         </div>
-        <p class="foot-note" data-i18n="job.note">Bu, ilandaki anahtar kelimelerin CV'nde geçip geçmediğine bakan basit bir kontroldür. Gerekçeli, yapay zekâ destekli eşleşme Compalist'in bir sonraki adımı.</p>
+        <p class="foot-note" data-i18n="job.note">Bu, ilandaki anahtar kelimelerin CV'nde geçip geçmediğine bakan hızlı bir kontroldür. Gerekçeli analiz için aşağıdaki yapay zekâ eşleşmesini kullan.</p>
+        <div class="ai" id="ai">
+          <div class="row">
+            <button type="button" class="btn primary" id="ai-go" data-i18n="ai.go">Yapay zekâ ile gerekçeli eşleşme</button>
+            <span class="big" id="ai-score" hidden></span>
+          </div>
+          <p class="foot-note" data-i18n="ai.consent">Butona bastığında CV metnin ve ilan, analiz için Claude'a (Anthropic) gönderilir. Compalist bu metinleri saklamaz.</p>
+          <p class="err" id="ai-err" hidden></p>
+          <div id="ai-out" hidden style="display:grid;gap:12px">
+            <p id="ai-sum"></p>
+            <div style="display:grid;gap:6px"><span class="lbl" data-i18n="ai.str">Güçlü yönlerin</span><ul id="ai-str"></ul></div>
+            <div style="display:grid;gap:6px"><span class="lbl" data-i18n="ai.gap">Eksikler</span><ul id="ai-gap"></ul></div>
+            <div style="display:grid;gap:6px"><span class="lbl" data-i18n="ai.sug">Öneriler</span><ul id="ai-sug"></ul></div>
+          </div>
+        </div>
       </section>
 
       <div class="cta">
         <strong data-i18n="cta.h">Hayalindeki şirketlerde fırsat açıldığında haberin olsun.</strong>
         <p data-i18n="cta.p">Compalist'in eşleşme havuzu yakında açılıyor. Erken erişim için bize yaz:</p>
-        <a href="mailto:merhaba@compalist.com?subject=Compalist%20erken%20eri%C5%9Fim">merhaba@compalist.com</a>
+        <a href="mailto:burakkurdas@compalist.com?subject=Compalist%20erken%20eri%C5%9Fim">burakkurdas@compalist.com</a>
       </div>
     </div>
   </div>
@@ -312,7 +330,7 @@ var I18N = {
   en: {
     "crumb":"CV Builder","h1":"ATS-friendly CV builder",
     "lede":"Enter your details and your CV builds itself as you type. Single column, standard headings and selectable text, so applicant tracking systems can read it. You can also check how well it fits a job posting.",
-    "priv":"No sign-up. Your data stays in this browser and is never sent to a server.",
+    "priv":"No sign-up. Your data stays in this browser; it is sent for analysis only when you ask for the AI match, and is not stored.",
     "s.personal":"Personal details","l.name":"Full name","l.title":"Target title","l.email":"Email","l.phone":"Phone","l.city":"City","l.link":"LinkedIn / portfolio",
     "s.summary":"Profile summary","h.summary":"3–4 sentences: who you are, years of experience, your top 2–3 skills and the role you want.",
     "s.exp":"Experience","h.exp":"Each line becomes a bullet. Start with a strong verb and add a number for the result where you can.",
@@ -322,14 +340,18 @@ var I18N = {
     "tab.form":"Form","tab.prev":"Preview","tab.go":"Preview my CV →","pdf":"Download as PDF","copytxt":"Copy plain text","sample":"This is a sample CV. Replace it with your own details.","clear":"Clear the form",
     "pdftip":"In the dialog that opens, choose \"Save as PDF\" as the destination.",
     "ats.h":"ATS check","job.h":"Fit for a posting","job.l":"Paste the job posting","job.miss":"Missing from your CV","job.hit":"Matched",
-    "job.note":"This is a simple check of whether the posting's keywords appear in your CV. Reasoned, AI-powered matching is Compalist's next step.",
+    "job.note":"This is a quick check of whether the posting's keywords appear in your CV. For a reasoned analysis, use the AI match below.",
+    "ai.go":"Reasoned AI match","ai.consent":"When you press the button, your CV text and the posting are sent to Claude (Anthropic) for analysis. Compalist does not store them.",
+    "ai.str":"Your strengths","ai.gap":"Gaps","ai.sug":"Suggestions","ai.wait":"Analysing…",
+    "ai.e.short":"Fill in your CV and paste a longer job posting first.","ai.e.rate":"Too many requests. Please try again in a while.","ai.e.gen":"The analysis could not be completed. Please try again.",
     "cta.h":"Hear about openings at your dream companies.","cta.p":"Compalist's matching pool opens soon. Write to us for early access:",
     "saved":"Saved in this browser","copied":"Copied",
     "c.contact":"Name, email and phone are filled in","c.title":"A target title is set","c.summary":"Summary is 250–700 characters","c.exp":"At least one role with 2+ bullets","c.num":"Half of your bullets include a number","c.dates":"Every role has start and end dates","c.skills":"At least 6 skills listed","c.layout":"Single column, standard headings, no tables or images",
     "cv.summary":"Summary","cv.exp":"Experience","cv.edu":"Education","cv.skills":"Skills","cv.langs":"Languages","cv.certs":"Certificates","cv.empty":"Your CV will appear here as you fill in the form.","cv.n.exp":"Role","cv.n.edu":"School"
   }
 };
-var TR = {"saved":"Bu tarayıcıda kaydedildi","copied":"Kopyalandı",
+var TR = {"saved":"Bu tarayıcıda kaydedildi","copied":"Kopyalandı","ai.wait":"Analiz ediliyor…",
+  "ai.e.short":"Önce CV'ni doldur ve daha uzun bir ilan metni yapıştır.","ai.e.rate":"Çok fazla istek geldi. Biraz sonra tekrar dene.","ai.e.gen":"Analiz tamamlanamadı. Lütfen tekrar dene.",
   "c.contact":"Ad, e-posta ve telefon dolu","c.title":"Hedef unvan yazılmış","c.summary":"Özet 250–700 karakter arası","c.exp":"En az bir deneyim ve 2+ madde","c.num":"Maddelerin yarısında sayı var","c.dates":"Her deneyimin tarihleri dolu","c.skills":"En az 6 yetkinlik","c.layout":"Tek sütun, standart başlıklar, tablo ve görsel yok",
   "cv.summary":"Profil","cv.exp":"İş Deneyimi","cv.edu":"Eğitim","cv.skills":"Yetkinlikler","cv.langs":"Diller","cv.certs":"Sertifikalar","cv.empty":"Formu doldurdukça CV'n burada oluşacak.","cv.n.exp":"Deneyim","cv.n.edu":"Okul"};
 document.querySelectorAll("[data-i18n]").forEach(function(el){ if(!(el.dataset.i18n in TR)) TR[el.dataset.i18n]=el.textContent; });
@@ -481,7 +503,26 @@ function job(){
   hit.forEach(function(w){ hh.appendChild(el("span","chip hit",w)); });
   $("job-out").hidden = false;
 }
-$("job").addEventListener("input", job);
+$("job").addEventListener("input", function(){ job(); $("ai-out").hidden = true; $("ai-score").hidden = true; $("ai-err").hidden = true; });
+function fillList(id, arr){ var ul = $(id); ul.innerHTML = ""; (arr||[]).forEach(function(x){ ul.appendChild(el("li",null,x)); }); ul.parentNode.hidden = !(arr||[]).length; }
+$("ai-go").addEventListener("click", function(){
+  var b = $("ai-go"), err = $("ai-err"), cv = $("paper").innerText, jt = $("job").value;
+  err.hidden = true;
+  if (cv.trim().length < 80 || jt.trim().length < 80){ err.textContent = t("ai.e.short"); err.hidden = false; return; }
+  b.disabled = true; b.textContent = t("ai.wait");
+  fetch("/api/match", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({cv:cv, job:jt, lang:lang})})
+    .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, status:r.status, d:d}; }); })
+    .then(function(x){
+      if (!x.ok) throw x;
+      var d = x.d;
+      $("ai-score").textContent = (lang==="en" ? d.score + "%" : "%" + d.score); $("ai-score").hidden = false;
+      $("ai-sum").textContent = d.summary || "";
+      fillList("ai-str", d.strengths); fillList("ai-gap", d.gaps); fillList("ai-sug", d.suggestions);
+      $("ai-out").hidden = false;
+    })
+    .catch(function(x){ err.textContent = t(x && x.status === 429 ? "ai.e.rate" : x && x.status === 400 ? "ai.e.short" : "ai.e.gen"); err.hidden = false; })
+    .then(function(){ b.disabled = false; b.textContent = t("ai.go"); });
+});
 
 function view(v){
   $("app").dataset.view = v;
